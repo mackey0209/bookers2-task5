@@ -6,7 +6,7 @@
 		<%= render 'users/profile', user: current_user%>
 
 		<h2>New book</h2>
-		<%= render 'books/newform', book: @book %>
+		<%= render 'books/newform', book: @new_book %>
 
 	</div>
 
@@ -23,13 +23,48 @@
 					</td>
 					<td><%= link_to @book.title, @book %></td>
 					<td><%= @book.body %></td>
-					<% if @book.user == current_user  %>
+
+				<% if @book.favorited_by?(current_user) %>
+					<td><%= link_to book_favorites_path(@book), method: :delete do %>
+				      <i class="fas fa-heart" aria-hidden="true" style="color: pink;"></i>
+				      <%= @book.favorites.count %> いいね</td>
+			 		<% end %>
+				<% else %>
+			  		<td><%= link_to book_favorites_path(@book), method: :post do %>
+				      <i class="fa fa-heart-o" aria-hidden="true" style="color: pink;"></i>
+				      <%= @book.favorites.count %> いいね</td>
+					<% end %>
+			  	<% end %>
+
+			  		<td>コメント数:<%= @book.book_comments.count %></td>
+
+			  		<% if @book.user == current_user  %>
 					<td><%= link_to "Edit",edit_book_path(@book), class: "btn-sm btn-success edit_book_#{@book.id}" %></td>
 					<td><%= link_to "Destroy",@book, method: :delete, data: {confirm: "本当に削除してもよろしいですか？"}, class: "btn-sm btn-danger destroy_book_#{@book.id}" %></td>
 					<% end %>
 				</tr>
-			</table>
+		</table>
 
+				<div style="margin-bottom: 50px">
+				<%= form_for [@book, @book_comment] do |f| %>
+				        <%= f.text_area :comment, size: "100x6",placeholder: "コメントはこちらにお願いします" %>
+				    	<%= f.submit "送信" %>
+				<% end %>
+				</div>
+
+			<% @book_comments.each do |book_comment| %>
+			   <div class="col-xs-12 ", style="margin-top:10px; position: relative;">
+					<div class="col-xs-10 well", style="word-wrap: break-word; margin-bottom:0;">
+						<%= book_comment.comment %>
+					</div>
+
+					<% if @book.user == current_user  %>
+
+						<%= link_to "Destroy",book_book_comment_path(book_comment.book_id,book_comment.id), method: :delete, data: {confirm: "本当に削除してもよろしいですか？"}, class: "btn-sm btn-danger  pull-right destroy_book_#{book_comment.id}", style:"position: absolute; bottom: 0;" %>
+
+					<% end %>
+				</div>
+			<% end %>
 	</div>
 </div>
 
