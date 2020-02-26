@@ -1,0 +1,50 @@
+<h2>Follower Users</h2>
+		
+		<table class="table table-hover table-inverse">
+			<thead>
+				<tr>
+					<th>image</th>
+					<th>name</th>
+					<th colspan="4"></th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<% @users.each do |user| %>
+					<tr>
+						<td>
+							<%= link_to (user) do %>
+							<%= attachment_image_tag(user, :profile_image, :fill, 50, 50, fallback: "no-image-mini.jpg") %>
+							<% end %>
+						</td>
+						<td><%= link_to user.name, user %></td>
+						<td>フォロー数:<%= user.following.count %></td>
+						<td>フォロワー数:<%= user.followers.count %></td>
+					<% if current_user.id != user.id %>
+					<!-- ログインユーザとターゲットユーザが違う時 -->
+						<% if current_user.following?(user) %>
+						<!-- ログインユーザーがターゲットユーザーをフォローしているか？ -->
+						<!-- following?はモデルに定義されている -->
+							<td>
+	  							<%= form_for(current_user.active_relationships.find_by(followed_id: user.id),html: { method: :delete }) do |f| %>
+	  									<%= f.submit "フォロー外す", class: "btn btn-primary" %>
+	  							<% end %>
+	  						</td>
+	  					<% else %>
+	  						<td>
+								<%= form_for(current_user.active_relationships.build) do |f| %>
+									<%= hidden_field_tag :followed_id, user.id %>
+
+	  								<%= f.submit "フォローする", class: "btn btn-primary" %>
+	  								<% end %>
+	  						</td>
+	  					<% end %>
+					 <% else %>
+					  		<td></td>
+					<% end %>
+					  		<td><%= link_to "show", user_path(user.id) %></td>
+					 </tr>
+			  	<% end %>
+
+			 </tbody>
+		 </table>
